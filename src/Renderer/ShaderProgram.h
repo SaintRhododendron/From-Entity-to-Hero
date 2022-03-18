@@ -3,6 +3,7 @@
 #include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/mat4x4.hpp>
 #include <iostream>
 
 namespace Renderer
@@ -20,6 +21,7 @@ namespace Renderer
 		ShaderProgram(ShaderProgram&& shaderProgram) noexcept;
 
 		void setInt(const std::string name, GLint value);
+		void setMatrix4(const std::string name, const glm::mat4& matrix);
 		bool isCompiled() { return _isCompiled; }
 		void use();
 		bool createShader(const std::string source, const GLenum shaderType, GLuint& shaderID);

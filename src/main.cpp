@@ -1,6 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/vec2.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
 #include <string>
@@ -29,54 +31,21 @@ bool isCompiled - returns flag "_isCompiled"
 */
 
 GLfloat points[] = {
-   -0.5f, 0.5f,
-   -0.5f, -0.5f,
-    0.5f, -0.5f,
-
-   -0.5f, 0.5f,
-    0.5f, -0.5f,
-    0.5f, 0.5f,
-    
-    0.5f, 0.5f,
-    -0.5f, 0.5f,
-    0.0f, 0.9f,
-
-    0.0f, 0.8f,
-    0.2f,  -0.2f,
-    -0.2f,  -0.2f,
+   0.f, 0.f, 0.f,
+   500.f, 800.f, 0.f,
+   1000.f,  0.f, 0.f
 };
 
 GLfloat colors[] = {
     1.f, 0.99f, 0.29f, 1.f,
     1.f, 0.99f, 0.29f, 1.f,
     1.f, 0.99f, 0.29f, 1.f,
-
-    1.f, 0.99f, 0.29f, 1.f,
-    1.f, 0.99f, 0.29f, 1.f,
-    1.f, 0.99f, 0.29f, 1.f,
-
-    0.36f, 0.28f, 0.11f, 1.f,
-    0.36f, 0.28f, 0.11f, 1.f,
-    0.36f, 0.28f, 0.11f, 1.f,
-
-    0.f, 0.f, 0.f, 1.f,
-    0.f, 0.f, 0.f, 1.f,
-    0.f, 0.f, 0.f, 1.f
 };
 
 GLfloat textures[] = {
-    0.5f, 1.f,
-    1.f,  0.f,
-    0.f,  0.f,
-    0.5f, 1.f,
-    1.f,  0.f,
-    0.f,  0.f,
-    0.5f, 1.f,
-    1.f,  0.f,
-    0.f,  0.f,
-    0.5f, 1.f,
-    1.f,  0.f,
-    0.f,  0.f,
+    0.f, 0.5f,
+    0.5f,  1.f,
+    1.f,  0.5f,
 };
 
 glm::ivec2 g_windowSize(//pVideoMode->height, pVideoMode->width);
@@ -188,7 +157,7 @@ int main(int argc, char** argv)
 
     glEnableVertexAttribArray(0);               //This is location in videocard memory. We need enable it first
     glBindBuffer(GL_ARRAY_BUFFER, points_vbo);  //we bind buffer again
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr); //send data from binded buffer to binded array (location, size of portion of data, data type, normalize it, stride, where from start reading?)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr); //send data from binded buffer to binded array (location, size of portion of data, data type, normalize it, stride, where from start reading?)
 
     glEnableVertexAttribArray(3);                   //Now location 1 is activated
     glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);      //Same
@@ -198,24 +167,25 @@ int main(int argc, char** argv)
     glBindBuffer(GL_ARRAY_BUFFER, texture_vbo);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-    pDefaultShaderProgram->use();
+    glm::mat4 modelMatrix = glm::mat4(1.f);
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(100.f, 100.f, 0.f));
+    glm::mat4 projectionMatrix = glm::ortho(0.f, static_cast<float>(g_windowSize.x), 0.f, static_cast<float>(g_windowSize.y), -100.f, 100.f);
+
     pTextureShaderProgram->use();
     pTextureShaderProgram->setInt("tex", 0);
+    pTextureShaderProgram->setMatrix4("projectionMatrix", projectionMatrix);
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(pWindow))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        pDefaultShaderProgram->use();                    //what shader program we use
-        glBindVertexArray(vao);                 //Bind VAO that will give data to videocard
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawArrays(GL_TRIANGLES, 6, 3);
-
+        
         pTextureShaderProgram->use();
         glBindVertexArray(vao);
         pTexture->bind();
-        glDrawArrays(GL_TRIANGLES, 9, 3);
+        pTextureShaderProgram->setMatrix4("modelMatrix", modelMatrix);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
                                                /* Swap front and back buffers */
         glfwSwapBuffers(pWindow);
 
