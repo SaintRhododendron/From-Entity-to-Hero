@@ -4,12 +4,24 @@
 #include <iostream>
 #include <string>
 
+#include"Renderer/ShaderProgram.h"
+
 #define PROGRAMM_NAME "From-Entity-to-Hero"
 #define WINDOW_HEIGHT 480
 #define WINDOW_WIDTH 640
 
 int g_windowSizeX = WINDOW_WIDTH;
 int g_windowSizeY = WINDOW_HEIGHT;
+
+/*
+class Shader Program
+
+contructor (string VertexShader, string FragmentShader)
+
+bool isCompiled - returns flag "_isCompiled"
+
+.use() - use this shaderProgram
+*/
 
 GLfloat points[] = {
     0.f,   0.5f,  0.f,
@@ -103,21 +115,12 @@ int main(void)
 
     glClearColor(0, 0.3922, 0, 1);
 
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);       //Create vertex shader. ID: vs
-    glShaderSource(vs, 1, &vertex_shader, nullptr);     //Send a code to the shader. (ID, lines?, our code, size of code?) 
-    glCompileShader(vs);                                //Compile our code
-
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);     //Create fragment shader. ID: fs
-    glShaderSource(fs, 1, &fragment_shader, nullptr);   //Send a code to the shader Same as vertex
-    glCompileShader(fs);                                //Compile as vertex
-
-    GLuint sp = glCreateProgram();                      //Create shader program. ID: sp
-    glAttachShader(sp, vs);                             //Attach vertex shader
-    glAttachShader(sp, fs);                             //Attach fragment shader
-    glLinkProgram(sp);                                  //Link them together
-
-    glDeleteShader(vs);                                 //Delete vs to free memory
-    glDeleteShader(fs);                                 //Same with the fs
+    Renderer::ShaderProgram g_shaderProgram(vertex_shader, fragment_shader);
+    if (!g_shaderProgram.isCompiled())
+    {
+        std::cerr << "[ERR] Fatal Error! Error while compiling Shader Program!" << std::endl;
+        return -1;
+    }
 
     GLuint points_vbo = 0;                              //Vertex Buffer Object. ID: 0
     glGenBuffers(1, &points_vbo);                       //Gen a buffer (count?, address of ID. ID will be given by video driver)
@@ -147,7 +150,7 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(sp);                       //what shader program we use
+        g_shaderProgram.use();                    //what shader program we use
         glBindVertexArray(vao);                 //Bind VAO that will give data to videocard
         glDrawArrays(GL_TRIANGLES, 0, 3);      //Ask videocard to draw triangles (Type of primitive, what index will be first, verticis)
         glDrawArrays(GL_TRIANGLES, 3, 3);
