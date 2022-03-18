@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/vec2.hpp>
 
 #include <iostream>
 #include <string>
@@ -9,11 +10,8 @@
 #include"Renderer/Texture.h"
 
 #define PROGRAM_NAME "From-Entity-to-Hero"
-#define WINDOW_HEIGHT 480
-#define WINDOW_WIDTH 640
-
-int g_windowSizeX = WINDOW_WIDTH;
-int g_windowSizeY = WINDOW_HEIGHT;
+#define WINDOW_HEIGHT 1080
+#define WINDOW_WIDTH 1920
 
 /*
 class Shader Program
@@ -24,30 +22,71 @@ bool isCompiled - returns flag "_isCompiled"
 
 .use() - use this shaderProgram
 */
+/*
+1   1 - 2
+| \   \ |
+2 - 3   3
+*/
 
 GLfloat points[] = {
-    0.f,   0.5f,  0.f,
-    0.5f, -0.5f,  0.f,
-   -0.5f, -0.5f,  0.f,
+   -0.5f, 0.5f,
+   -0.5f, -0.5f,
+    0.5f, -0.5f,
+
+   -0.5f, 0.5f,
+    0.5f, -0.5f,
+    0.5f, 0.5f,
+    
+    0.5f, 0.5f,
+    -0.5f, 0.5f,
+    0.0f, 0.9f,
+
+    0.0f, 0.8f,
+    0.2f,  -0.2f,
+    -0.2f,  -0.2f,
 };
 
 GLfloat colors[] = {
-    1.f, 0.f, 0.f,
-    0.f, 1.f, 0.f,
-    0.f, 0.f, 1.f,
+    1.f, 0.99f, 0.29f, 1.f,
+    1.f, 0.99f, 0.29f, 1.f,
+    1.f, 0.99f, 0.29f, 1.f,
+
+    1.f, 0.99f, 0.29f, 1.f,
+    1.f, 0.99f, 0.29f, 1.f,
+    1.f, 0.99f, 0.29f, 1.f,
+
+    0.36f, 0.28f, 0.11f, 1.f,
+    0.36f, 0.28f, 0.11f, 1.f,
+    0.36f, 0.28f, 0.11f, 1.f,
+
+    0.f, 0.f, 0.f, 1.f,
+    0.f, 0.f, 0.f, 1.f,
+    0.f, 0.f, 0.f, 1.f
 };
 
 GLfloat textures[] = {
     0.5f, 1.f,
     1.f,  0.f,
     0.f,  0.f,
+    0.5f, 1.f,
+    1.f,  0.f,
+    0.f,  0.f,
+    0.5f, 1.f,
+    1.f,  0.f,
+    0.f,  0.f,
+    0.5f, 1.f,
+    1.f,  0.f,
+    0.f,  0.f,
 };
+
+glm::ivec2 g_windowSize(//pVideoMode->height, pVideoMode->width);
+                        WINDOW_WIDTH, WINDOW_HEIGHT);
 
 void glfwWindowSizeCallback(GLFWwindow* pWindow, int width, int height)
 {
-    g_windowSizeX = width;
-    g_windowSizeY = height;
-    glViewport(0, 0, g_windowSizeX, g_windowSizeY);
+    g_windowSize.x = width;
+    g_windowSize.y = height;
+    glViewport(0, 0, g_windowSize.x, g_windowSize.y);
 }
 
 void glfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int mods)
@@ -67,13 +106,27 @@ int main(int argc, char** argv)
         std::cout << "[ERR] Fatal Error! GLFW failed to be initialized!" << std::endl;
         return -1;
     }
-    /* Create a windowed mode window and its OpenGL context */
+
+   GLFWmonitor* pMonitor = glfwGetPrimaryMonitor();
+   if (!pMonitor)
+   {
+        std::cerr << "[ERR] Fatal Error! Failed to detect Primal Monitor!" << std::endl;
+        return -1;
+   }
+
+   const GLFWvidmode* pVideoMode = glfwGetVideoMode(pMonitor);
+   g_windowSize.x = pVideoMode->width;
+   g_windowSize.y = pVideoMode->height;
+    
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* pWindow = glfwCreateWindow(g_windowSizeX, g_windowSizeY, PROGRAM_NAME, nullptr, nullptr);
+    
+    
+
+    GLFWwindow* pWindow = glfwCreateWindow(g_windowSize.x, g_windowSize.y, PROGRAM_NAME, pMonitor, nullptr);
     if (!pWindow)
     {
         std::cout << "[ERR] Fatal Error! Window " << PROGRAM_NAME << " failed to be created!" << std::endl;
@@ -106,8 +159,13 @@ int main(int argc, char** argv)
         std::cerr << "[ERR] Fatal Error! Default Shader program is failed to load!" << std::endl;
         return -1;
     }
-
-    auto pTexture = g_resourceManager.loadTexture("Stone", "res/textures/grass_stoned.png");
+    auto pTextureShaderProgram = g_resourceManager.loadShaderProgram("TextureShaderProgram", "res/shaders/vertexTexture.txt", "res/shaders/fragmentTexture.txt");
+    if (!pTextureShaderProgram)
+    {
+        std::cerr << "[ERR] Fatal Error! Texture Shader program is failed to load!" << std::endl;
+        return -1;
+    }
+    auto pTexture = g_resourceManager.loadTexture("Stone", "res/textures/miadzel.png");
 
     GLuint points_vbo = 0;                              //Vertex Buffer Object. ID: 0
     glGenBuffers(1, &points_vbo);                       //Gen a buffer (count?, address of ID. ID will be given by video driver)
@@ -130,18 +188,19 @@ int main(int argc, char** argv)
 
     glEnableVertexAttribArray(0);               //This is location in videocard memory. We need enable it first
     glBindBuffer(GL_ARRAY_BUFFER, points_vbo);  //we bind buffer again
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr); //send data from binded buffer to binded array (location, size of portion of data, data type, normalize it, stride, where from start reading?)
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr); //send data from binded buffer to binded array (location, size of portion of data, data type, normalize it, stride, where from start reading?)
 
     glEnableVertexAttribArray(3);                   //Now location 1 is activated
     glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);      //Same
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, nullptr); //Color data to location 1
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 0, nullptr); //Color data to location 1
 
     glEnableVertexAttribArray(2);                   
     glBindBuffer(GL_ARRAY_BUFFER, texture_vbo);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
     pDefaultShaderProgram->use();
-    pDefaultShaderProgram->setInt("tex", 0);
+    pTextureShaderProgram->use();
+    pTextureShaderProgram->setInt("tex", 0);
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(pWindow))
     {
@@ -150,8 +209,13 @@ int main(int argc, char** argv)
 
         pDefaultShaderProgram->use();                    //what shader program we use
         glBindVertexArray(vao);                 //Bind VAO that will give data to videocard
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 6, 3);
+
+        pTextureShaderProgram->use();
+        glBindVertexArray(vao);
         pTexture->bind();
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 9, 3);
                                                /* Swap front and back buffers */
         glfwSwapBuffers(pWindow);
 

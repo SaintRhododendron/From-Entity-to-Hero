@@ -98,7 +98,7 @@ std::shared_ptr<Renderer::Texture> ResourceManager::loadTexture(const std::strin
 		return nullptr;
 	}
 
-	std::shared_ptr<Renderer::Texture> pNewTexture = _textures.emplace(textureName, std::make_shared<Renderer::Texture>(width, height, pixels, channelsAmount, GL_LINEAR, GL_CLAMP_TO_EDGE)).first->second;
+	std::shared_ptr<Renderer::Texture> pNewTexture = _textures.emplace(textureName, std::make_shared<Renderer::Texture>(width, height, pixels, channelsAmount, GL_NEAREST, GL_CLAMP_TO_EDGE)).first->second;
 
 	stbi_image_free(pixels);
 	return pNewTexture;
