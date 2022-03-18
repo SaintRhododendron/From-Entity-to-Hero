@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include"Renderer/ShaderProgram.h"
 #include"Resources/ResourceManager.h"
@@ -65,6 +66,7 @@ void glfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int
     {
         glfwSetWindowShouldClose(pWindow, GL_TRUE);
     }
+
 }
 
 int main(int argc, char** argv)
@@ -96,7 +98,7 @@ int main(int argc, char** argv)
 
 
 
-    GLFWwindow* pWindow = glfwCreateWindow(g_windowSize.x, g_windowSize.y, PROGRAM_NAME, pMonitor, nullptr);
+    GLFWwindow* pWindow = glfwCreateWindow(g_windowSize.x, g_windowSize.y, PROGRAM_NAME, nullptr, nullptr);
     if (!pWindow)
     {
         std::cout << "[ERR] Fatal Error! Window " << PROGRAM_NAME << " failed to be created!" << std::endl;
@@ -175,11 +177,13 @@ int main(int argc, char** argv)
     pTextureShaderProgram->use();
     pTextureShaderProgram->setInt("tex", 0);
     pTextureShaderProgram->setMatrix4("projectionMatrix", projectionMatrix); */
-    auto pTexture = g_resourceManager.loadTexture("Stone", "res/textures/miadzel.png");
+    
+    std::vector<std::string> subTexturesNames = { "Miadz1" };
+    auto pTexture = g_resourceManager.loadTextureAtlas("Stone", "res/textures/miadzel.png", subTexturesNames, 32, 32);
 
     auto pSpriteShaderProgram = g_resourceManager.loadShaderProgram("SpriteShaderProgram", "res/shaders/vertexSprite.txt", "res/shaders/fragmentSprite.txt");
     
-    auto pSprite = g_resourceManager.loadSprite("Miadzel", "Stone", "SpriteShaderProgram", 150, 180);
+    auto pSprite = g_resourceManager.loadSprite("Miadzel", "Stone", "SpriteShaderProgram", 150, 180, "Miadz1");
     pSprite->setPosition(glm::vec2(50, 50));
     glm::mat4 projectionMatrix = glm::ortho(0.f, static_cast<float>(g_windowSize.x), 0.f, static_cast<float>(g_windowSize.y), -100.f, 100.f);
     pSpriteShaderProgram->use();
@@ -206,6 +210,7 @@ int main(int argc, char** argv)
         if (y >= (g_windowSize.y - pSprite->getSize().y) || y <= 0) { yy = -yy; };
         /* Swap front and back buffers */
         glfwSwapBuffers(pWindow);
+
 
         /* Poll for and process events */
         glfwPollEvents();

@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <memory>
 #include <glm/vec2.hpp>
+#include <string>
 
 
 
@@ -15,8 +16,9 @@ namespace Renderer
 	class Sprite
 	{
 	public:
-		Sprite(std::shared_ptr<Texture> pTexture,
-			   std::shared_ptr<ShaderProgram> pShaderProgram,
+		Sprite(const std::shared_ptr<Texture> pTexture,
+			   const std::string initialSubTextureName,
+			   const std::shared_ptr<ShaderProgram> pShaderProgram,
 			   const glm::vec2& position = glm::vec2(0.f),
 			   const glm::vec2& size = glm::vec2(1.f),
 			   const float rotation = 0.0f);
@@ -32,6 +34,7 @@ namespace Renderer
 		glm::vec2 getSize() { return _size; }
 
 	private:
+
 		std::shared_ptr<Texture> _pTexture;
 		std::shared_ptr<ShaderProgram> _pShaderProgram;
 		glm::vec2 _position;

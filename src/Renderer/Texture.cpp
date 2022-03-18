@@ -1,5 +1,8 @@
 #include "Texture.h"
 
+#include"glm/vec2.hpp"
+#include<map>
+
 namespace Renderer
 {
 
@@ -64,6 +67,22 @@ namespace Renderer
 	void Texture::bind()
 	{
 		glBindTexture(GL_TEXTURE_2D, _ID);
+	}
+
+	void Texture::addSubTexture(std::string name, const glm::vec2& leftBottomUV, const glm::vec2& rightTopUV)
+	{
+		_subTextures.emplace(std::move(name), SubTexture(leftBottomUV, rightTopUV));
+	}
+
+	const Texture::SubTexture& Texture::getSubTexture(const std::string& name) const
+	{
+		auto it = _subTextures.find(name);
+		if (it != _subTextures.end())
+		{
+			return it->second;
+		}
+		const static SubTexture defaultSubTexture;
+		return defaultSubTexture;
 	}
 
 }

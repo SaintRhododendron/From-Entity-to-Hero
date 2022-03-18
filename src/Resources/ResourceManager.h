@@ -3,6 +3,7 @@
 #include<string>
 #include<memory>
 #include<map>
+#include<vector>
 
 
 namespace Renderer
@@ -30,9 +31,16 @@ public:
 	std::shared_ptr<Renderer::Sprite> loadSprite(const std::string& spriteName, 
 												 const std::string& textureName,
 												 const std::string& shaderProgramName,
-												 const unsigned int spriteWidth,
-												 const unsigned int spriteHeight);
+											   	 const unsigned int spriteWidth,
+												 const unsigned int spriteHeight,
+												 const std::string& initialSubTextureName = "default");
 	std::shared_ptr<Renderer::Sprite> getSprite(const std::string& spriteName);
+
+	std::shared_ptr<Renderer::Texture> loadTextureAtlas(const std::string& textureAtlasName, 
+														const std::string& relativeTextureAtlasPath, 
+														const std::vector<std::string> subTexturesNames,
+														const unsigned int subTextureWidth, 
+														const unsigned int subTextureHeight);
 
 private:
 	std::string getShaderCode(const std::string& relativeFilePath);
