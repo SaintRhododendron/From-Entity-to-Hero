@@ -20,8 +20,8 @@ namespace Renderer
 		Texture() = delete;
 		Texture(const Texture&) = delete;
 		Texture& operator=(const Texture&) = delete;
-		Texture& operator=(Texture&& texture);
-		Texture(Texture&& texture);
+		Texture& operator=(Texture&& texture) noexcept;
+		Texture(Texture&& texture) noexcept; 
 
 		void bind();
 

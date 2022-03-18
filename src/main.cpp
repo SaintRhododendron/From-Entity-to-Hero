@@ -10,6 +10,7 @@
 #include"Renderer/ShaderProgram.h"
 #include"Resources/ResourceManager.h"
 #include"Renderer/Texture.h"
+#include"Renderer/Sprite.h"
 
 #define PROGRAM_NAME "From-Entity-to-Hero"
 #define WINDOW_HEIGHT 1080
@@ -30,7 +31,7 @@ bool isCompiled - returns flag "_isCompiled"
 2 - 3   3
 */
 
-GLfloat points[] = {
+/*GLfloat points[] = {
    0.f, 0.f, 0.f,
    500.f, 800.f, 0.f,
    1000.f,  0.f, 0.f
@@ -46,7 +47,7 @@ GLfloat textures[] = {
     0.f, 0.5f,
     0.5f,  1.f,
     1.f,  0.5f,
-};
+}; */
 
 glm::ivec2 g_windowSize(//pVideoMode->height, pVideoMode->width);
                         WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -68,7 +69,7 @@ void glfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int
 
 int main(int argc, char** argv)
 {
-    
+
     /* Initialize the library */
     if (!glfwInit())
     {
@@ -76,24 +77,24 @@ int main(int argc, char** argv)
         return -1;
     }
 
-   GLFWmonitor* pMonitor = glfwGetPrimaryMonitor();
-   if (!pMonitor)
-   {
+    GLFWmonitor* pMonitor = glfwGetPrimaryMonitor();
+    if (!pMonitor)
+    {
         std::cerr << "[ERR] Fatal Error! Failed to detect Primal Monitor!" << std::endl;
         return -1;
-   }
+    }
 
-   const GLFWvidmode* pVideoMode = glfwGetVideoMode(pMonitor);
-   g_windowSize.x = pVideoMode->width;
-   g_windowSize.y = pVideoMode->height;
-    
+    const GLFWvidmode* pVideoMode = glfwGetVideoMode(pMonitor);
+    g_windowSize.x = pVideoMode->width;
+    g_windowSize.y = pVideoMode->height;
+
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    
-    
+
+
 
     GLFWwindow* pWindow = glfwCreateWindow(g_windowSize.x, g_windowSize.y, PROGRAM_NAME, pMonitor, nullptr);
     if (!pWindow)
@@ -115,14 +116,14 @@ int main(int argc, char** argv)
         std::cout << "[ERR] Fatal Error! GLAD failed to be loaded!" << std::endl;
         return -1;
     }
-    
+
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
     std::cout << "OpenGL " << glGetString(GL_VERSION) << std::endl;
 
     glClearColor(0, 0.3922, 0, 1);
 
     ResourceManager g_resourceManager(argv[0]);
-    auto pDefaultShaderProgram = g_resourceManager.loadShaderProgram("DefaultShaderProgram", "res/shaders/vertex.txt", "res/shaders/fragment.txt");
+    /*auto pDefaultShaderProgram = g_resourceManager.loadShaderProgram("DefaultShaderProgram", "res/shaders/vertex.txt", "res/shaders/fragment.txt");
     if (!pDefaultShaderProgram)
     {
         std::cerr << "[ERR] Fatal Error! Default Shader program is failed to load!" << std::endl;
@@ -134,7 +135,7 @@ int main(int argc, char** argv)
         std::cerr << "[ERR] Fatal Error! Texture Shader program is failed to load!" << std::endl;
         return -1;
     }
-    auto pTexture = g_resourceManager.loadTexture("Stone", "res/textures/miadzel.png");
+    
 
     GLuint points_vbo = 0;                              //Vertex Buffer Object. ID: 0
     glGenBuffers(1, &points_vbo);                       //Gen a buffer (count?, address of ID. ID will be given by video driver)
@@ -146,7 +147,7 @@ int main(int argc, char** argv)
     glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);          //Same
     glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); //Same
 
-    GLuint texture_vbo = 0;                              
+    GLuint texture_vbo = 0;
     glGenBuffers(1, &texture_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, texture_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(textures), textures, GL_STATIC_DRAW);
@@ -163,30 +164,47 @@ int main(int argc, char** argv)
     glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);      //Same
     glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 0, nullptr); //Color data to location 1
 
-    glEnableVertexAttribArray(2);                   
+    glEnableVertexAttribArray(2);
     glBindBuffer(GL_ARRAY_BUFFER, texture_vbo);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
     glm::mat4 modelMatrix = glm::mat4(1.f);
     modelMatrix = glm::translate(modelMatrix, glm::vec3(100.f, 100.f, 0.f));
-    glm::mat4 projectionMatrix = glm::ortho(0.f, static_cast<float>(g_windowSize.x), 0.f, static_cast<float>(g_windowSize.y), -100.f, 100.f);
+    
 
     pTextureShaderProgram->use();
     pTextureShaderProgram->setInt("tex", 0);
-    pTextureShaderProgram->setMatrix4("projectionMatrix", projectionMatrix);
+    pTextureShaderProgram->setMatrix4("projectionMatrix", projectionMatrix); */
+    auto pTexture = g_resourceManager.loadTexture("Stone", "res/textures/miadzel.png");
+
+    auto pSpriteShaderProgram = g_resourceManager.loadShaderProgram("SpriteShaderProgram", "res/shaders/vertexSprite.txt", "res/shaders/fragmentSprite.txt");
+    
+    auto pSprite = g_resourceManager.loadSprite("Miadzel", "Stone", "SpriteShaderProgram", 150, 180);
+    pSprite->setPosition(glm::vec2(50, 50));
+    glm::mat4 projectionMatrix = glm::ortho(0.f, static_cast<float>(g_windowSize.x), 0.f, static_cast<float>(g_windowSize.y), -100.f, 100.f);
+    pSpriteShaderProgram->use();
+    pSpriteShaderProgram->setInt("tex", 0);
+    pSpriteShaderProgram->setMatrix4("projectionMatrix", projectionMatrix);
     /* Loop until the user closes the window */
+
+    int x = 100;
+    int y = 200;
+    int xx = 10;
+    int yy = 10;
+
+
     while (!glfwWindowShouldClose(pWindow))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        
-        pTextureShaderProgram->use();
-        glBindVertexArray(vao);
-        pTexture->bind();
-        pTextureShaderProgram->setMatrix4("modelMatrix", modelMatrix);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-                                               /* Swap front and back buffers */
+        pSprite->setPosition(glm::vec2(x, y));
+        pSprite->render();
+        x += xx;
+        y += yy;
+        if (x >= (g_windowSize.x - pSprite->getSize().x) || x <= 0) { xx = -xx; };
+        if (y >= (g_windowSize.y - pSprite->getSize().y) || y <= 0) { yy = -yy; };
+        /* Swap front and back buffers */
         glfwSwapBuffers(pWindow);
 
         /* Poll for and process events */

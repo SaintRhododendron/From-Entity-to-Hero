@@ -6,6 +6,7 @@
 
 #include "../Renderer/ShaderProgram.h"
 #include "../Renderer/Texture.h"
+#include "../Renderer/Sprite.h"
 
 #include<sstream>
 #include<fstream>
@@ -102,4 +103,37 @@ std::shared_ptr<Renderer::Texture> ResourceManager::loadTexture(const std::strin
 
 	stbi_image_free(pixels);
 	return pNewTexture;
+}
+
+std::shared_ptr<Renderer::Sprite> ResourceManager::getSprite(const std::string& spriteName)
+{
+	SpritesMap::const_iterator iterator = _sprites.find(spriteName);
+	if (iterator != _sprites.end())
+	{
+		return iterator->second;
+	}
+	std::cerr << "[ERR] Failed to find Sprite " << spriteName << " in SpritesMap." << std::endl;
+	return nullptr;
+}
+
+std::shared_ptr<Renderer::Sprite> ResourceManager::loadSprite(const std::string& spriteName,
+															  const std::string& textureName,
+															  const std::string& shaderProgramName,
+															  const unsigned int spriteWidth,
+														 	  const unsigned int spriteHeight)
+{
+	auto pTexture = getTexture(textureName);
+	if (!pTexture)
+	{
+		std::cerr << "[ERR] Failed to get Texture " << textureName << " for Sprite " << spriteName << std::endl;
+		return nullptr;
+	}
+	auto pShaderProgram = getShaderProgram(shaderProgramName);
+	if (!pShaderProgram)
+	{
+		std::cerr << "[ERR] Failed to get Shader Program " << shaderProgramName << " for Sprite " << spriteName << std::endl;
+		return nullptr;
+	}
+	std::shared_ptr<Renderer::Sprite> newSprite = _sprites.emplace(spriteName, std::make_shared<Renderer::Sprite>(pTexture, pShaderProgram, glm::vec2(0.f), glm::vec2(spriteWidth, spriteHeight), 0)).first->second;
+	return newSprite;
 }

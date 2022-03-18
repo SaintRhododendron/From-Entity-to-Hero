@@ -36,7 +36,7 @@ namespace Renderer
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	Texture& Texture::operator=(Texture&& texture)
+	Texture& Texture::operator=(Texture&& texture) noexcept
 	{
 		glDeleteTextures(1, &_ID);
 		_ID = texture._ID;
@@ -47,7 +47,7 @@ namespace Renderer
 		return *this;
 	}
 
-	Texture::Texture(Texture&& texture)
+	Texture::Texture(Texture&& texture) noexcept
 	{
 		_ID = texture._ID;
 		texture._ID = 0;
