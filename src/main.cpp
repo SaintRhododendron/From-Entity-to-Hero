@@ -5,8 +5,9 @@
 #include <string>
 
 #include"Renderer/ShaderProgram.h"
+#include"Resources/ResourceManager.h"
 
-#define PROGRAMM_NAME "From-Entity-to-Hero"
+#define PROGRAM_NAME "From-Entity-to-Hero"
 #define WINDOW_HEIGHT 480
 #define WINDOW_WIDTH 640
 
@@ -74,7 +75,7 @@ void glfwKeyCallback(GLFWwindow* pWindow, int key, int scancode, int action, int
     }
 }
 
-int main(void)
+int main(int argc, char** argv)
 {
     
     /* Initialize the library */
@@ -89,10 +90,10 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* pWindow = glfwCreateWindow(g_windowSizeX, g_windowSizeY, PROGRAMM_NAME, nullptr, nullptr);
+    GLFWwindow* pWindow = glfwCreateWindow(g_windowSizeX, g_windowSizeY, PROGRAM_NAME, nullptr, nullptr);
     if (!pWindow)
     {
-        std::cout << "[ERR] Fatal Error! Window " << PROGRAMM_NAME << " failed to be created!" << std::endl;
+        std::cout << "[ERR] Fatal Error! Window " << PROGRAM_NAME << " failed to be created!" << std::endl;
         glfwTerminate();
         return -1;
     }
@@ -114,6 +115,14 @@ int main(void)
     std::cout << "OpenGL " << glGetString(GL_VERSION) << std::endl;
 
     glClearColor(0, 0.3922, 0, 1);
+
+    ResourceManager g_resourceManager(argv[0]);
+    auto pDefaultShaderProgram = g_resourceManager.loadShaderProgram("DefaultShaderProgram", "res/shaders/vertex.txt", "res/shaders/fragment.txt");
+    if (!pDefaultShaderProgram)
+    {
+        std::cerr << "[ERR] Fatal Error! Default Shader program is failed to load!" << std::endl;
+        return -1;
+    }
 
     Renderer::ShaderProgram g_shaderProgram(vertex_shader, fragment_shader);
     if (!g_shaderProgram.isCompiled())
@@ -150,7 +159,7 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        g_shaderProgram.use();                    //what shader program we use
+        pDefaultShaderProgram->use();                    //what shader program we use
         glBindVertexArray(vao);                 //Bind VAO that will give data to videocard
         glDrawArrays(GL_TRIANGLES, 0, 3);      //Ask videocard to draw triangles (Type of primitive, what index will be first, verticis)
         glDrawArrays(GL_TRIANGLES, 3, 3);
