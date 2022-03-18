@@ -1,6 +1,11 @@
 #include "ResourceManager.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_PNG
+#include "stb_image.h"
+
 #include "../Renderer/ShaderProgram.h"
+#include "../Renderer/Texture.h"
 
 #include<sstream>
 #include<fstream>
@@ -64,4 +69,37 @@ std::shared_ptr<Renderer::ShaderProgram> ResourceManager::getShaderProgram(const
 	}
 	std::cerr << "[ERR] Failed to find Shader program " << shaderProgramName << " in shaderProgramsMap." << std::endl;
 	return nullptr;
+}
+
+std::shared_ptr<Renderer::Texture> ResourceManager::getTexture(const std::string& textureName)
+{
+	TexturesMap::const_iterator iterator = _textures.find(textureName);
+	if (iterator != _textures.end())
+	{
+		return iterator->second;
+	}
+	std::cerr << "[ERR] Failed to find Texture " << textureName << " in TexturesMap." << std::endl;
+	return nullptr;
+}
+
+std::shared_ptr<Renderer::Texture> ResourceManager::loadTexture(const std::string& textureName, const std::string& relativeTexturePath)
+{
+	int channelsAmount = 0;
+	int width = 0;
+	int height = 0;
+
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* pixels = stbi_load(std::string(_path + "/" + relativeTexturePath).c_str(), &width, &height, &channelsAmount, 0);
+
+
+	if (!pixels)
+	{
+		std::cerr << "[ERR] Failed to load Texture: " << relativeTexturePath << std::endl;
+		return nullptr;
+	}
+
+	std::shared_ptr<Renderer::Texture> pNewTexture = _textures.emplace(textureName, std::make_shared<Renderer::Texture>(width, height, pixels, channelsAmount, GL_LINEAR, GL_CLAMP_TO_EDGE)).first->second;
+
+	stbi_image_free(pixels);
+	return pNewTexture;
 }

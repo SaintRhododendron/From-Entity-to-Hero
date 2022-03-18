@@ -6,6 +6,7 @@
 
 #include"Renderer/ShaderProgram.h"
 #include"Resources/ResourceManager.h"
+#include"Renderer/Texture.h"
 
 #define PROGRAM_NAME "From-Entity-to-Hero"
 #define WINDOW_HEIGHT 480
@@ -28,37 +29,19 @@ GLfloat points[] = {
     0.f,   0.5f,  0.f,
     0.5f, -0.5f,  0.f,
    -0.5f, -0.5f,  0.f,
-   0.0f, 0.2f, 0.0f,
-   0.2f, -0.2f, 0.0f,
-   -0.2f, -0.2f, 0.0f
 };
 
 GLfloat colors[] = {
     1.f, 0.f, 0.f,
     0.f, 1.f, 0.f,
     0.f, 0.f, 1.f,
-  1.f, 0.f, 0.f,
-   0.f, 1.f, 0.f,
-    0.f, 0.f, 1.f
 };
 
-const char* vertex_shader =
-"#version 460\n"
-"layout(location = 0) in vec3 vertex_position;"
-"layout(location = 3) in vec3 vertex_color;"
-"out vec3 color;"
-"void main(){"
-"   color = vertex_color;"
-"   gl_Position = vec4(vertex_position, 1.0);"
-"}";
-
-const char* fragment_shader =
-"#version 460\n"
-"in vec3 color;"
-"out vec4 fragment_color;"
-"void main(){"
-"   fragment_color = vec4(color, 1.0);"
-"}";
+GLfloat textures[] = {
+    0.5f, 1.f,
+    1.f,  0.f,
+    0.f,  0.f,
+};
 
 void glfwWindowSizeCallback(GLFWwindow* pWindow, int width, int height)
 {
@@ -124,12 +107,7 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    Renderer::ShaderProgram g_shaderProgram(vertex_shader, fragment_shader);
-    if (!g_shaderProgram.isCompiled())
-    {
-        std::cerr << "[ERR] Fatal Error! Error while compiling Shader Program!" << std::endl;
-        return -1;
-    }
+    auto pTexture = g_resourceManager.loadTexture("Stone", "res/textures/grass_stoned.png");
 
     GLuint points_vbo = 0;                              //Vertex Buffer Object. ID: 0
     glGenBuffers(1, &points_vbo);                       //Gen a buffer (count?, address of ID. ID will be given by video driver)
@@ -140,6 +118,11 @@ int main(int argc, char** argv)
     glGenBuffers(1, &colors_vbo);                       //Same
     glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);          //Same
     glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW); //Same
+
+    GLuint texture_vbo = 0;                              
+    glGenBuffers(1, &texture_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, texture_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(textures), textures, GL_STATIC_DRAW);
 
     GLuint vao = 0;                     //Vertex Array Object - complex of data that will be send to videocard?
     glGenVertexArrays(1, &vao);         //As Gen buffer but gen VAO
@@ -153,6 +136,12 @@ int main(int argc, char** argv)
     glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);      //Same
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, nullptr); //Color data to location 1
 
+    glEnableVertexAttribArray(2);                   
+    glBindBuffer(GL_ARRAY_BUFFER, texture_vbo);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+    pDefaultShaderProgram->use();
+    pDefaultShaderProgram->setInt("tex", 0);
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(pWindow))
     {
@@ -161,9 +150,8 @@ int main(int argc, char** argv)
 
         pDefaultShaderProgram->use();                    //what shader program we use
         glBindVertexArray(vao);                 //Bind VAO that will give data to videocard
-        glDrawArrays(GL_TRIANGLES, 0, 3);      //Ask videocard to draw triangles (Type of primitive, what index will be first, verticis)
-        glDrawArrays(GL_TRIANGLES, 3, 3);
-        glDrawArrays(GL_TRIANGLES, 2, 3);
+        pTexture->bind();
+        glDrawArrays(GL_TRIANGLES, 0, 3);
                                                /* Swap front and back buffers */
         glfwSwapBuffers(pWindow);
 
