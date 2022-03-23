@@ -11,7 +11,8 @@ namespace Renderer
 				   const std::shared_ptr<ShaderProgram> pShaderProgram,
 				   const glm::vec2& position,
 				   const glm::vec2& size,
-				   const float rotation)
+				   const float rotation,
+				   const RotationStyle RotationStyle)
 					: _pTexture(std::move(pTexture))
 					, _pShaderProgram(std::move(pShaderProgram))
 					, _position (position)
@@ -28,6 +29,8 @@ namespace Renderer
 			1.f, 0.f,
 			0.f, 0.f
 		};
+
+		
 
 		auto pSubTexture = pTexture->getSubTexture(initialSubTextureName);
 
@@ -68,6 +71,26 @@ namespace Renderer
 		glDeleteVertexArrays(1, &_VAO);
 	}
 
+	void Sprite::setSubTexture(const std::string subTextureName)
+	{
+		auto pSubTexture = _pTexture->getSubTexture(subTextureName);
+
+		const GLfloat textureCoords[] = {
+			pSubTexture.leftBottomUV.x, pSubTexture.leftBottomUV.y,
+			pSubTexture.leftBottomUV.x, pSubTexture.rightTopUV.y,
+			pSubTexture.rightTopUV.x, pSubTexture.rightTopUV.y,
+
+			pSubTexture.rightTopUV.x, pSubTexture.rightTopUV.y,
+			pSubTexture.rightTopUV.x, pSubTexture.leftBottomUV.y,
+			pSubTexture.leftBottomUV.x, pSubTexture.leftBottomUV.y
+		};
+
+		glBindBuffer(GL_ARRAY_BUFFER, _textureCoordsVBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(textureCoords), textureCoords);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	}
+
 
 	void Sprite::render()
 	{
@@ -100,6 +123,11 @@ namespace Renderer
 	void Sprite::setRotation(const float rotation)
 	{
 		_rotation = rotation;
+	}
+
+	void Sprite::setRotationStyle(Sprite::RotationStyle rotationStyle)
+	{
+		_rotationStyle = rotationStyle;
 	}
 
 }

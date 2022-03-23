@@ -4,8 +4,13 @@
 
 #include<string>
 #include<iostream>
-#include <map>
+#include<map>
 #include<glm/vec2.hpp>
+#define TX_BASIC_LEFT_BOTTOM_UV 0.f
+#define TX_BASIC_RIGHT_TOP_UV 1.f
+#define TX_BASIC_CHANELS_AMOUNT 4
+#define TX_BASIC_FILTER GL_LINEAR
+#define TX_BASIC_WRAP_MODE GL_CLAMP_TO_EDGE
 
 namespace Renderer
 {
@@ -19,14 +24,14 @@ namespace Renderer
 			glm::vec2 rightTopUV;
 
 			SubTexture(const glm::vec2& _leftBottomUV, const glm::vec2& _rightTopUV) : leftBottomUV(_leftBottomUV), rightTopUV(_rightTopUV) {}
-			SubTexture(): leftBottomUV(0.f), rightTopUV(1.f) {}
+			SubTexture(): leftBottomUV(TX_BASIC_LEFT_BOTTOM_UV), rightTopUV(TX_BASIC_RIGHT_TOP_UV) {}
 		};
 
 		Texture(GLuint width, GLuint height, 
 				const unsigned char* textureData, 
-				const unsigned int chanelsAmount = 4, 
-				const GLenum filter = GL_LINEAR, 
-				const GLenum wrapMode = GL_CLAMP_TO_EDGE);
+				const unsigned int chanelsAmount = TX_BASIC_CHANELS_AMOUNT,
+				const GLenum filter = TX_BASIC_FILTER,
+				const GLenum wrapMode = TX_BASIC_WRAP_MODE);
 		~Texture();
 
 		Texture() = delete;
@@ -47,6 +52,6 @@ namespace Renderer
 		unsigned int _width;
 		unsigned int _height;
 
-		std::map<std::string, SubTexture> _subTextures = {};
+		std::map<std::string, SubTexture> _subTextures;
 	};
 }

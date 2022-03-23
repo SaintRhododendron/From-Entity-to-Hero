@@ -2,6 +2,8 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#define SHP_BASIC_INFO_LOG 1024
+
 namespace Renderer
 {
 	ShaderProgram::ShaderProgram(const std::string& vertexShader, const std::string& fragmentShader)
@@ -30,8 +32,8 @@ namespace Renderer
 
 		if (!success)
 		{
-			GLchar infoLog[1024];
-			glGetShaderInfoLog(_ID, 1024, nullptr, infoLog);
+			GLchar infoLog[SHP_BASIC_INFO_LOG];
+			glGetShaderInfoLog(_ID, SHP_BASIC_INFO_LOG, nullptr, infoLog);
 			std::cerr << "[ERR] ShaderProgram-linking error. " << infoLog << std::endl;
 		}
 		else
@@ -86,8 +88,8 @@ namespace Renderer
 		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			GLchar infoLog[1024];
-			glGetShaderInfoLog(shaderID, 1024, nullptr, infoLog);
+			GLchar infoLog[SHP_BASIC_INFO_LOG];
+			glGetShaderInfoLog(shaderID, SHP_BASIC_INFO_LOG, nullptr, infoLog);
 			std::cerr << "[ERR] Shader-compiling error. " << infoLog << std::endl;
 			return false;
 		}

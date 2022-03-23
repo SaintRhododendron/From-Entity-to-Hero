@@ -2,6 +2,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_ONLY_PNG
+
 #include "stb_image.h"
 
 #include "../Renderer/ShaderProgram.h"
@@ -11,6 +12,8 @@
 #include<sstream>
 #include<fstream>
 #include<iostream>
+
+#define RM_TEXTURE_FIX 0.01f
 
 ResourceManager::ResourceManager(const std::string& executablePath)
 {
@@ -148,14 +151,14 @@ std::shared_ptr<Renderer::Texture> ResourceManager::loadTextureAtlas(const std::
 	auto pTexture = loadTexture(textureAtlasName, relativeTextureAtlasPath);
 	if (pTexture)
 	{
-		const unsigned int textureWidth = pTexture->getWidth();
-		const unsigned int textureHeight = pTexture->getHeight();
+		const float textureWidth = pTexture->getWidth();
+		const float textureHeight = pTexture->getHeight();
 		unsigned int currentTextureOffsetX = 0;
 		unsigned int currentTextureOffsetY = textureHeight;
 		for (const auto& currentSubTextureName : subTexturesNames)
 		{
-			glm::vec2 leftBottomUV(static_cast<float>(currentTextureOffsetX) / textureWidth, static_cast<float>(currentTextureOffsetY - subTextureHeight) / textureHeight);
-			glm::vec2 rightBottomUV(static_cast<float>(currentTextureOffsetX + subTextureWidth) / textureWidth, static_cast<float>(currentTextureOffsetY) / textureHeight);
+			glm::vec2 leftBottomUV(static_cast<float>(currentTextureOffsetX + RM_TEXTURE_FIX) / textureWidth, static_cast<float>(currentTextureOffsetY - subTextureHeight + RM_TEXTURE_FIX) / textureHeight);
+			glm::vec2 rightBottomUV(static_cast<float>(currentTextureOffsetX - RM_TEXTURE_FIX + subTextureWidth) / textureWidth, static_cast<float>(currentTextureOffsetY - RM_TEXTURE_FIX) / textureHeight);
 			
 			currentTextureOffsetX += subTextureWidth;
 			if (currentTextureOffsetX >= textureWidth)

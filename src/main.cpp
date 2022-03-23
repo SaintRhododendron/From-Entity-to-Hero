@@ -12,10 +12,12 @@
 #include"Resources/ResourceManager.h"
 #include"Renderer/Texture.h"
 #include"Renderer/Sprite.h"
+#include"Renderer/Map.h"
 
 #define PROGRAM_NAME "From-Entity-to-Hero"
 #define WINDOW_HEIGHT 1080
 #define WINDOW_WIDTH 1920
+//#define WINDOWED
 
 /*
 class Shader Program
@@ -49,6 +51,7 @@ GLfloat textures[] = {
     0.5f,  1.f,
     1.f,  0.5f,
 }; */
+
 
 glm::ivec2 g_windowSize(//pVideoMode->height, pVideoMode->width);
                         WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -87,8 +90,8 @@ int main(int argc, char** argv)
     }
 
     const GLFWvidmode* pVideoMode = glfwGetVideoMode(pMonitor);
-    g_windowSize.x = pVideoMode->width;
-    g_windowSize.y = pVideoMode->height;
+   // g_windowSize.x = pVideoMode->width;
+   // g_windowSize.y = pVideoMode->height;
 
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -97,8 +100,11 @@ int main(int argc, char** argv)
 
 
 
-
+#ifdef WINDOWED
     GLFWwindow* pWindow = glfwCreateWindow(g_windowSize.x, g_windowSize.y, PROGRAM_NAME, nullptr, nullptr);
+#else
+    GLFWwindow* pWindow = glfwCreateWindow(g_windowSize.x, g_windowSize.y, PROGRAM_NAME, pMonitor, nullptr);
+#endif
     if (!pWindow)
     {
         std::cout << "[ERR] Fatal Error! Window " << PROGRAM_NAME << " failed to be created!" << std::endl;
@@ -178,12 +184,12 @@ int main(int argc, char** argv)
     pTextureShaderProgram->setInt("tex", 0);
     pTextureShaderProgram->setMatrix4("projectionMatrix", projectionMatrix); */
     
-    std::vector<std::string> subTexturesNames = { "Miadz1" };
-    auto pTexture = g_resourceManager.loadTextureAtlas("Stone", "res/textures/miadzel.png", subTexturesNames, 32, 32);
+    std::vector<std::string> subTexturesNames = { "0", "A", "B", "C", "D", "E", "F", "G", "H", "I" };
+    auto pTexture = g_resourceManager.loadTextureAtlas("Back", "res/textures/LevelTexture.png", subTexturesNames, 32, 32);
 
     auto pSpriteShaderProgram = g_resourceManager.loadShaderProgram("SpriteShaderProgram", "res/shaders/vertexSprite.txt", "res/shaders/fragmentSprite.txt");
     
-    auto pSprite = g_resourceManager.loadSprite("Miadzel", "Stone", "SpriteShaderProgram", 150, 180, "Miadz1");
+    auto pSprite = g_resourceManager.loadSprite("Tile", "Back", "SpriteShaderProgram", 32, 32, "GrassLT");
     pSprite->setPosition(glm::vec2(50, 50));
     glm::mat4 projectionMatrix = glm::ortho(0.f, static_cast<float>(g_windowSize.x), 0.f, static_cast<float>(g_windowSize.y), -100.f, 100.f);
     pSpriteShaderProgram->use();
@@ -191,19 +197,29 @@ int main(int argc, char** argv)
     pSpriteShaderProgram->setMatrix4("projectionMatrix", projectionMatrix);
     /* Loop until the user closes the window */
 
+    std::vector<std::string> MapData = {"000000000000", "00ABBC000000", "00DEEF000000", "00DEEF000000", "00GHHI000000", "000000000000"};
+
+    Renderer::Map pMap(pTexture, pSpriteShaderProgram, MapData);
+
     int x = 100;
     int y = 200;
     int xx = 10;
     int yy = 10;
 
+    pSprite->setSubTexture("Ground");
 
     while (!glfwWindowShouldClose(pWindow))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
+     
+        pMap.draw();
         pSprite->setPosition(glm::vec2(x, y));
         pSprite->render();
+        pSprite->setPosition(glm::vec2(x, y));
+        pSprite->render();
+        
         x += xx;
         y += yy;
         if (x >= (g_windowSize.x - pSprite->getSize().x) || x <= 0) { xx = -xx; };

@@ -4,6 +4,7 @@
 #include<memory>
 #include<map>
 #include<vector>
+#define RM_BASIC_INITIAL_SUB_TEXTURE_NAME "default"
 
 
 namespace Renderer
@@ -33,13 +34,13 @@ public:
 												 const std::string& shaderProgramName,
 											   	 const unsigned int spriteWidth,
 												 const unsigned int spriteHeight,
-												 const std::string& initialSubTextureName = "default");
+												 const std::string& initialSubTextureName = RM_BASIC_INITIAL_SUB_TEXTURE_NAME);
 	std::shared_ptr<Renderer::Sprite> getSprite(const std::string& spriteName);
 
 	std::shared_ptr<Renderer::Texture> loadTextureAtlas(const std::string& textureAtlasName, 
 														const std::string& relativeTextureAtlasPath, 
 														const std::vector<std::string> subTexturesNames,
-														const unsigned int subTextureWidth, 
+														const unsigned int subTextureWidth,
 														const unsigned int subTextureHeight);
 
 private:

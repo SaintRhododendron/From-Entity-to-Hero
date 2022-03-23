@@ -11,6 +11,10 @@ add_executable(${PROJECT_NAME} src/main.cpp
 							   src/Renderer/Texture.cpp
 							   src/Renderer/Sprite.h
 							   src/Renderer/Sprite.cpp
+							   src/Renderer/Tile.h
+							   src/Renderer/Tile.cpp
+							   src/Renderer/Map.h
+							   src/Renderer/Map.cpp
 							   
 							   src/Resources/ResourceManager.h
 							   src/Resources/ResourceManager.cpp
