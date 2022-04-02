@@ -186,7 +186,7 @@ int main(int argc, char** argv)
     
     std::vector<std::string> subTexturesNames = { "0", "A", "B", "C", "D", "E", "F", "G", "H", "I" };
     auto pTexture = g_resourceManager.loadTextureAtlas("Back", "res/textures/LevelTexture.png", subTexturesNames, 32, 32);
-
+    g_resourceManager.loadTexture("Miadzel", "res/textures/miadzel.png");
     auto pSpriteShaderProgram = g_resourceManager.loadShaderProgram("SpriteShaderProgram", "res/shaders/vertexSprite.txt", "res/shaders/fragmentSprite.txt");
     
     auto pSprite = g_resourceManager.loadSprite("Tile", "Back", "SpriteShaderProgram", 32, 32, "GrassLT");
@@ -196,7 +196,7 @@ int main(int argc, char** argv)
     pSpriteShaderProgram->setInt("tex", 0);
     pSpriteShaderProgram->setMatrix4("projectionMatrix", projectionMatrix);
     /* Loop until the user closes the window */
-
+    auto pMiadzelSprite = g_resourceManager.loadSprite("Miadzel", "Miadzel", "SpriteShaderProgram", 100, 200);
     std::vector<std::string> MapData = {"000000000000", "00ABBC000000", "00DEEF000000", "00DEEF000000", "00GHHI000000", "000000000000"};
 
     Renderer::Map pMap(pTexture, pSpriteShaderProgram, MapData);
@@ -215,10 +215,9 @@ int main(int argc, char** argv)
 
      
         pMap.draw();
-        pSprite->setPosition(glm::vec2(x, y));
-        pSprite->render();
-        pSprite->setPosition(glm::vec2(x, y));
-        pSprite->render();
+        pMiadzelSprite->setPosition(glm::vec2(x, y));
+        pMiadzelSprite->render();
+        
         
         x += xx;
         y += yy;
